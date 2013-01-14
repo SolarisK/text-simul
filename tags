@@ -1,0 +1,26 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+APPNAME	Makefile	/^APPNAME=rts$/;"	m
+FIELD_H	launcher.c	8;"	d	file:
+FIELD_W	launcher.c	9;"	d	file:
+MAX_UNIT	launcher.c	10;"	d	file:
+SRC	Makefile	/^SRC=launcher.c$/;"	m
+_location	launcher.c	/^typedef struct _location {$/;"	s	file:
+_unit	launcher.c	/^typedef struct _unit {$/;"	s	file:
+handle	launcher.c	/^    pthread_t handle;$/;"	m	struct:_unit	file:
+i	launcher.c	/^    unsigned int i;$/;"	m	struct:_location	file:
+init_field	launcher.c	/^void init_field(void) {$/;"	f
+is_close_units	launcher.c	/^int is_close_units(location_t *one, location_t *two) {$/;"	f
+j	launcher.c	/^    unsigned int j;$/;"	m	struct:_location	file:
+location_t	launcher.c	/^} location_t;$/;"	t	typeref:struct:_location	file:
+main	launcher.c	/^int main(int argc, char** argv) {$/;"	f
+max	launcher.c	/^int max(int a, int b) {$/;"	f
+min	launcher.c	/^int min(int a, int b) {$/;"	f
+pos	launcher.c	/^    location_t pos;$/;"	m	struct:_unit	file:
+unit_routine	launcher.c	/^void* unit_routine(void *params) {$/;"	f
+unit_t	launcher.c	/^} unit_t;$/;"	t	typeref:struct:_unit	file:
+units	launcher.c	/^unit_t units[MAX_UNIT];$/;"	v
