@@ -108,23 +108,8 @@ int main(int argc, char** argv) {
     int res;
     int render_q;
 
+    /* Random seed initialization */
     srand((unsigned int)time(NULL));
-    //
-    //    perror("lock");
-    //    pthread_mutex_lock(&mutex1);
-    //
-    //    perror("init");
-    //    init_field();
-    //
-    //    perror("unlock");
-    //    pthread_mutex_unlock(&mutex1);
-    //
-    //    perror("join");
-    //    pthread_join(units[0].handle, NULL);
-    //
-    //    perror("destroy");
-    //    pthread_mutex_destroy(&mutex1);
-
 
     struct mq_attr render_q_attr;
     render_q_attr.mq_flags = 0;
