@@ -1,7 +1,10 @@
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <time.h>
 #include <pthread.h>
+#include <fcntl.h>
+#include <mqueue.h>
 
 /***********************************************************/
 
@@ -9,6 +12,7 @@
 #define FIELD_W     100
 #define MAX_UNIT    5
 
+typedef void (*render_routine_t)(void*);
 
 typedef struct _location {
     unsigned int i;
@@ -20,20 +24,42 @@ typedef struct _unit {
     location_t pos;
 } unit_t;
 
+typedef struct _RENDER_PARAMS {
+    int some_param;
+    render_routine_t render;
+} render_params_t;
+
 unit_t units[MAX_UNIT];
 
 /***********************************************************/
 
 void* unit_routine(void *params) {
-    unsigned int i;
-    unsigned int j;
+    int render_q = 0;
+    int stop = 0;
+    int res = 0;
+    render_params_t task;
 
-    printf("[%s:%d]\n", __FUNCTION__, __LINE__);
+    render_q = mq_open("/render_queue", O_RDONLY);
+    if (render_q == -1) {
+        perror("mq_open");
+        return NULL;
+    }
+    while (stop != 1) {
+        res = mq_receive(render_q, (char*)&task, sizeof(task), NULL);
+        if (res == -1) {
+            perror("mq_receive");
+        }
 
-    i = rand() % FIELD_H;
-    j = rand() % FIELD_W;
+        stop = (task.render == NULL) ? 1 : 0;
 
-    printf("[%s:%d] i = %d j = %d\n", __FUNCTION__, __LINE__, i, j);
+        if (task.render != NULL) {
+            task.render(NULL);
+        }
+    }
+    printf("[%s:%d] stopping worker...\n", __FUNCTION__, __LINE__);
+
+    mq_close(render_q);
+
     return NULL;
 }
 
@@ -63,11 +89,15 @@ int min(int a, int b) {
 
 int is_close_units(location_t *one, location_t *two) {
     if (((max(one->i, two->i) - min(one->i, two->i)) <= 2) &&
-        ((max(one->j, two->j) - min(one->j, two->j)) <= 2)){
+            ((max(one->j, two->j) - min(one->j, two->j)) <= 2)){
         return 1; 
     } else {
         return 0;
     }
+}
+/***********************************************************/
+void render(void* no_params) {
+    printf("[%s:%d] DO WORK!!!\n", __FUNCTION__, __LINE__);
 }
 /***********************************************************/
 
@@ -76,20 +106,60 @@ int main(int argc, char** argv) {
     unsigned char next_step[FIELD_H][FIELD_W] = { {0} };
     int i, j;
     int res;
-
-    pthread_mutex_t mutex1 = NULL;
+    int render_q;
 
     srand((unsigned int)time(NULL));
+    //
+    //    perror("lock");
+    //    pthread_mutex_lock(&mutex1);
+    //
+    //    perror("init");
+    //    init_field();
+    //
+    //    perror("unlock");
+    //    pthread_mutex_unlock(&mutex1);
+    //
+    //    perror("join");
+    //    pthread_join(units[0].handle, NULL);
+    //
+    //    perror("destroy");
+    //    pthread_mutex_destroy(&mutex1);
 
-    //init_field();
 
-    res = pthread_mutex_init(&mutex, NULL);
-    if (res != 0) {
-        perror("pthread_mutex_init");
+    struct mq_attr render_q_attr;
+    render_q_attr.mq_flags = 0;
+    render_q_attr.mq_maxmsg = 10;
+    render_q_attr.mq_msgsize = sizeof(render_params_t);
+    render_q_attr.mq_curmsgs = 0;
+
+    render_q = mq_open("/render_queue", O_CREAT | O_WRONLY, 0600, &render_q_attr);
+    if (render_q == -1) {
+        printf("[%s:%d] error = %d\n", __FUNCTION__, __LINE__, errno);
+        perror("mq_open");
         return EXIT_FAILURE;
     }
 
-    pthread_mutex_lock(&mutex1);
+    pthread_t worker;
+    res = pthread_create(&worker, NULL, unit_routine, NULL);
+    if (res) {
+        perror("ptrhead_create");
+    }
+
+    render_params_t p;
+    p.some_param = 5;
+    p.render = render;
+
+    mq_send(render_q, (char*)&p, sizeof(p), 0);
+
+    p.render = NULL;
+    mq_send(render_q, (char*)&p, sizeof(p), 0);
+
+    pthread_join(worker, NULL);
+
+    res = mq_close(render_q);
+    if (res != 0) {
+        perror("mq_close");
+    }
 
     printf("[%s:%d] done...\n", __FUNCTION__, __LINE__);
 

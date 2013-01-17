@@ -1,7 +1,7 @@
 APPNAME=rts
 SRC=launcher.c
-CFLAGS=-O2 -Wall
-SHARED_LIBRARIES=-lpthread
+CFLAGS=-O2 -Wall -pedantic
+SHARED_LIBRARIES=-lpthread -lrt
 
 all: $(APPNAME)
 	
