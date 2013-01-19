@@ -11,7 +11,6 @@
 
 /***********************************************************/
 
-typedef void (*render_routine_t)(void*);
 
 typedef struct _location {
     unsigned int i;
@@ -23,10 +22,6 @@ typedef struct _unit {
     location_t pos;
 } unit_t;
 
-typedef struct _RENDER_PARAMS {
-    int some_param;
-    render_routine_t render;
-} render_params_t;
 
 unit_t units[MAX_UNIT];
 

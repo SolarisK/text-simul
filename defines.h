@@ -6,4 +6,11 @@
 #define MAX_UNIT    5
 #define MAX_WORKERS 3
 
+typedef void (*render_routine_t)(void*);
+
+typedef struct _RENDER_PARAMS {
+    int some_param;
+    render_routine_t render;
+} render_params_t;
+
 #endif

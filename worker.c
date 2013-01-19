@@ -1,4 +1,7 @@
+#include <stdio.h>
 #include <pthread.h>
+#include <fcntl.h>
+#include <mqueue.h>
 #include "defines.h"
 #include "worker.h"
 
@@ -36,6 +39,8 @@ void* worker_routine(void *params) {
 
 void run_worker_threads() {
     int i;
+    int res = 0;
+
     for (i = 0; i < MAX_WORKERS; i ++) {
         res = pthread_create(&workers[i], NULL, worker_routine, NULL);
         if (res) {
