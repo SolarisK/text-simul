@@ -1,5 +1,5 @@
 APPNAME=rts
-SRC=launcher.c
+SRC=launcher.c worker.c
 CFLAGS=-O2 -Wall -pedantic
 SHARED_LIBRARIES=-lpthread -lrt
 

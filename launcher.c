@@ -6,11 +6,10 @@
 #include <fcntl.h>
 #include <mqueue.h>
 
-/***********************************************************/
+#include "defines.h"
+#include "worker.h"
 
-#define FIELD_H     100
-#define FIELD_W     100
-#define MAX_UNIT    5
+/***********************************************************/
 
 typedef void (*render_routine_t)(void*);
 
@@ -33,49 +32,9 @@ unit_t units[MAX_UNIT];
 
 /***********************************************************/
 
-void* unit_routine(void *params) {
-    int render_q = 0;
-    int stop = 0;
-    int res = 0;
-    render_params_t task;
-
-    render_q = mq_open("/render_queue", O_RDONLY);
-    if (render_q == -1) {
-        perror("mq_open");
-        return NULL;
-    }
-    while (stop != 1) {
-        res = mq_receive(render_q, (char*)&task, sizeof(task), NULL);
-        if (res == -1) {
-            perror("mq_receive");
-        }
-
-        stop = (task.render == NULL) ? 1 : 0;
-
-        if (task.render != NULL) {
-            task.render(NULL);
-        }
-    }
-    printf("[%s:%d] stopping worker...\n", __FUNCTION__, __LINE__);
-
-    mq_close(render_q);
-
-    return NULL;
-}
-
 /***********************************************************/
 
 void init_field(void) {
-    int result;
-    int count;
-
-    for (count = 0; count < MAX_UNIT; count++) {
-        result = pthread_create(&(units[count].handle), NULL, unit_routine, NULL);
-        if (result) {
-            perror("Unit creation error\n");
-        }
-    }
-    printf("[%s:%d] init done...\n", __FUNCTION__, __LINE__);
 }
 
 /***********************************************************/
@@ -96,9 +55,11 @@ int is_close_units(location_t *one, location_t *two) {
     }
 }
 /***********************************************************/
-void render(void* no_params) {
+void render_routine(void* no_params) {
     printf("[%s:%d] DO WORK!!!\n", __FUNCTION__, __LINE__);
 }
+/***********************************************************/
+
 /***********************************************************/
 
 int main(int argc, char** argv) {
@@ -124,22 +85,16 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    pthread_t worker;
-    res = pthread_create(&worker, NULL, unit_routine, NULL);
-    if (res) {
-        perror("ptrhead_create");
-    }
-
+    
     render_params_t p;
     p.some_param = 5;
-    p.render = render;
+    p.render = render_routine;
 
     mq_send(render_q, (char*)&p, sizeof(p), 0);
 
     p.render = NULL;
     mq_send(render_q, (char*)&p, sizeof(p), 0);
 
-    pthread_join(worker, NULL);
 
     res = mq_close(render_q);
     if (res != 0) {
