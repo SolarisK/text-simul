@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <time.h>
 #include <pthread.h>
@@ -22,8 +21,6 @@ typedef struct _unit {
     location_t pos;
 } unit_t;
 
-
-unit_t units[MAX_UNIT];
 
 /***********************************************************/
 
@@ -66,19 +63,6 @@ int main(int argc, char** argv) {
 
     /* Random seed initialization */
     srand((unsigned int)time(NULL));
-
-    struct mq_attr render_q_attr;
-    render_q_attr.mq_flags = 0;
-    render_q_attr.mq_maxmsg = 10;
-    render_q_attr.mq_msgsize = sizeof(render_params_t);
-    render_q_attr.mq_curmsgs = 0;
-
-    render_q = mq_open(RENDER_QUEUE_NAME, O_CREAT | O_WRONLY, 0600, &render_q_attr);
-    if (render_q == -1) {
-        printf("[%s:%d] error = %d\n", __FUNCTION__, __LINE__, errno);
-        perror("mq_open");
-        return EXIT_FAILURE;
-    }
 
     
     render_params_t p;
