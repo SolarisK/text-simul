@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     render_q_attr.mq_msgsize = sizeof(render_params_t);
     render_q_attr.mq_curmsgs = 0;
 
-    render_q = mq_open("/render_queue", O_CREAT | O_WRONLY, 0600, &render_q_attr);
+    render_q = mq_open(RENDER_QUEUE_NAME, O_CREAT | O_WRONLY, 0600, &render_q_attr);
     if (render_q == -1) {
         printf("[%s:%d] error = %d\n", __FUNCTION__, __LINE__, errno);
         perror("mq_open");

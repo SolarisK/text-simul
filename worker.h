@@ -3,4 +3,6 @@
 
 void run_worker_threads();
 
+void stop_worker_threads();
+
 #endif /* __WORKER_H_ */

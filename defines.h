@@ -3,7 +3,8 @@
 
 #define FIELD_H     100
 #define FIELD_W     100
-#define MAX_UNIT    5
+
+#define RENDER_QUEUE_NAME "/render_queue"
 #define MAX_WORKERS 3
 
 typedef void (*render_routine_t)(void*);
