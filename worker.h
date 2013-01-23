@@ -3,6 +3,8 @@
 
 int run_worker_threads();
 
-void stop_worker_threads();
+int do_render(render_params_t* task);
+
+int stop_worker_threads();
 
 #endif /* __WORKER_H_ */
