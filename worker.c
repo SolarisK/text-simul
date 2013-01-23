@@ -24,10 +24,13 @@ static void* worker_routine(void *params) {
     }
     printf("queue opened\n");
 
+    mq_getattr(render_q, &render_q_attr);
+    printf("render params f=%d maxmsg=%d msgsize=%d curmsg=%d\n", render_q_attr.mq_flags, render_q_attr.mq_maxmsg, render_q_attr.mq_msgsize, render_q_attr.mq_curmsgs);
     while (stop != 1) {
         res = mq_receive(render_q, (char*)&task, sizeof(task), NULL);
         if (res == -1) {
             perror("mq_receive");
+            return NULL;
         }
 
         printf("Task received\n");
@@ -52,9 +55,8 @@ int run_worker_threads() {
     int i;
     int res = 0;
 
-/*  
     struct mq_attr render_q_attr;
-    render_q_attr.mq_flags = 0;
+/*  render_q_attr.mq_flags = 0;
     render_q_attr.mq_maxmsg = 10;
     render_q_attr.mq_msgsize = sizeof(render_params_t);
     render_q_attr.mq_curmsgs = 0; 
@@ -89,7 +91,9 @@ int do_render(render_params_t *task) {
 
 int stop_worker_threads() {
     int i;
-    int res;
+    int res = 0;
+    void* thread_result = NULL;
+
     render_params_t stop_task;
 
     stop_task.some_param = 0;
@@ -105,6 +109,15 @@ int stop_worker_threads() {
         perror("mq_unlink");
         return 1;
     }
+
     printf("queue unlinked\n");
+
+    for (i = 0; i < MAX_WORKERS; i++) {
+        res = pthread_join(workers[i], &thread_result);
+        if (res != 0) {
+            perror("pthread_join");
+        }
+    }
+    printf("all workers are stopped\n");
     return 0;
 }

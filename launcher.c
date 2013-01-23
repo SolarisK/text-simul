@@ -48,18 +48,17 @@ int main(int argc, char** argv) {
 
     res = run_worker_threads();
     if (res != 0) {
-       printf("error while init..");
+        printf("error while init..");
     }
 
-//    mq_send(render_q, (char*)&p, sizeof(p), 0);
-//   
-//    sleep(2);
-//
-//    res = stop_worker_threads();
-//    if (res != 0) {
-//        printf("[%s:%d] error while stoping...\n", __FUNCTION__, __LINE__);
-//    }
-//
+    sleep(2);
+
+    res = stop_worker_threads();
+    if (res != 0) {
+        printf("[%s:%d] error while stoping...\n", __FUNCTION__, __LINE__);
+    }
+
+
     printf("[%s:%d] done...\n", __FUNCTION__, __LINE__);
 
     return 0;
