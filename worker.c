@@ -8,8 +8,8 @@
 
 pthread_t workers[MAX_WORKERS];
 
-static int render_queue_id = 0;
-static int stop = 0;
+static int m_render_queue_id = 0;
+static int m_stop = 0;
 
 static void* worker_routine(void *params) {
     int render_q = 0;
@@ -24,9 +24,10 @@ static void* worker_routine(void *params) {
     }
     printf("queue opened\n");
 
+    struct mq_attr render_q_attr;
     mq_getattr(render_q, &render_q_attr);
     printf("render params f=%d maxmsg=%d msgsize=%d curmsg=%d\n", render_q_attr.mq_flags, render_q_attr.mq_maxmsg, render_q_attr.mq_msgsize, render_q_attr.mq_curmsgs);
-    while (stop != 1) {
+    while (m_stop != 1) {
         res = mq_receive(render_q, (char*)&task, sizeof(task), NULL);
         if (res == -1) {
             perror("mq_receive");
@@ -70,10 +71,13 @@ int run_worker_threads() {
         return 1;
     }
 
+    m_stop = 0;
+
     for (i = 0; i < MAX_WORKERS; i ++) {
         res = pthread_create(&workers[i], NULL, worker_routine, NULL);
         if (res) {
             perror("ptrhead_create");
+            m_stop = 1; /* stop already created threads */
             return 1;  /* TODO: define list of errors */
         }
     }
@@ -81,7 +85,7 @@ int run_worker_threads() {
     return 0;
 }
 
-int do_render(render_params_t *task) {
+int commit_task(render_params_t *task) {
     if (NULL == task) {
         return 1;
     }

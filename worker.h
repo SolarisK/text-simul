@@ -3,7 +3,7 @@
 
 int run_worker_threads();
 
-int do_render(render_params_t* task);
+int commit_task(render_params_t* task);
 
 int stop_worker_threads();
 
